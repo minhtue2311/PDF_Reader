@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:iconTint="@color/blueTheme" android:title="@string/allFiles" android:id="@+id/all_files" android:icon="@drawable/document" />
+    <item android:iconTint="@color/blueTheme" android:title="@string/recent" android:id="@+id/recent" android:icon="@drawable/recent"/>
+    <item android:iconTint="@color/blueTheme" android:title="@string/favorite" android:id="@+id/favorite" android:icon="@drawable/heart" />
+    <item android:iconTint="@color/blueTheme" android:title="@string/tools" android:id="@+id/title" android:icon="@drawable/tool"/>
+
+</menu>

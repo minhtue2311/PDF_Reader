@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">PDF_Reader</string>
+    <string name="allFiles">All files</string>
+    <string name="recent">Recent</string>
+    <string name="favorite">Favorite</string>
+    <string name="tools">Tools</string>
+    <string name="selected">Selected</string>
+    <string name="sort_by_last_modified">Sort by Last modified</string>
 </resources>
