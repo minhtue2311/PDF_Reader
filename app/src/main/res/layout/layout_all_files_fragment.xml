@@ -91,47 +91,56 @@
         android:textStyle="bold" />
 
 
-    <ScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/_15sdp"
-        android:background="@drawable/background_card_view">
-
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/background_card_view"
+        android:layout_marginTop="@dimen/_15sdp">
         <LinearLayout
+            android:id="@+id/layout_select_filter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="@dimen/_15sdp"
-            android:orientation="vertical">
+            >
 
-            <LinearLayout
-                android:id="@+id/layout_select_filter"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/txt_Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="@string/sort_by_last_modified"
-                    android:textColor="@color/black"
-                    android:layout_marginStart="@dimen/_10sdp"
-                    android:textSize="15sp" />
-
-                <ImageView
-                    android:layout_width="@dimen/_15sdp"
-                    android:layout_height="@dimen/_15sdp"
-                    android:background="@drawable/baseline_arrow_drop_down_24" />
-            </LinearLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewPdf"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/txt_Filter"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_15sdp" />
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/sort_by_last_modified"
+                android:textColor="@color/black"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:layout_width="@dimen/_15sdp"
+                android:layout_height="@dimen/_15sdp"
+                android:background="@drawable/baseline_arrow_drop_down_24" />
         </LinearLayout>
-    </ScrollView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewPdf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_select_filter" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnImport"
+            android:backgroundTint="@color/blueTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="@dimen/_15sdp"
+            android:layout_marginBottom="@dimen/_15sdp"
+            android:src="@drawable/baseline_add_24" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
