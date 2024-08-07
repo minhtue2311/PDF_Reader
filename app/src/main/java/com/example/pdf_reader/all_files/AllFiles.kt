@@ -7,18 +7,18 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.ParcelFileDescriptor
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.pdf_reader.adapter.AdapterListPDF
@@ -26,16 +26,18 @@ import com.example.pdf_reader.databinding.LayoutAllFilesFragmentBinding
 import com.example.pdf_reader.feature.FileManager
 import com.example.pdf_reader.model.PDF
 import java.io.File
-
+import android.provider.Settings
+import android.widget.Toast
 
 
 class AllFiles : Fragment() {
     private lateinit var viewBinding: LayoutAllFilesFragmentBinding
-    private val permissionRequestCode = 100
     private lateinit var adapter: AdapterListPDF
     private var listPdf: ArrayList<PDF> = ArrayList()
     private lateinit var fileManager: FileManager
     private lateinit var importLauncher: ActivityResultLauncher<Intent>
+    private lateinit var writeExternalPermission : ActivityResultLauncher<String>
+    private lateinit var manageExternalPermission : ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         importLauncher =
@@ -53,6 +55,7 @@ class AllFiles : Fragment() {
         super.onCreate(savedInstanceState)
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -60,14 +63,28 @@ class AllFiles : Fragment() {
     ): View? {
         viewBinding = LayoutAllFilesFragmentBinding.inflate(inflater, container, false)
         setUpRecyclerView()
-        if (allPermissionsGranted()) {
-            val externalStorageDir = Environment.getExternalStorageDirectory()
-            Log.d("External Storage Directory", externalStorageDir.absolutePath)
-            if (externalStorageDir.exists() && externalStorageDir.isDirectory) {
-                searchDir(externalStorageDir)
-            } else {
-                Log.e("Directory Error", "Invalid directory: ${externalStorageDir.absolutePath}")
+        writeExternalPermission =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                if (isGranted) {
+                    Toast.makeText(requireContext(), "Permission Accept", Toast.LENGTH_SHORT).show()
+                    searchDir(Environment.getExternalStorageDirectory())
+                } else {
+                    Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
+                }
+
             }
+        manageExternalPermission = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Environment.isExternalStorageManager()) {
+                Toast.makeText(requireContext(), "Permission Accepted", Toast.LENGTH_SHORT).show()
+                searchDir(Environment.getExternalStorageDirectory())
+            } else {
+                Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+        if (allPermissionsGranted()) {
+            searchDir(Environment.getExternalStorageDirectory())
         } else {
             requestPermissions()
         }
@@ -210,33 +227,22 @@ class AllFiles : Fragment() {
 
 
     private fun allPermissionsGranted(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
+        return if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            Environment.isExternalStorageManager()
+        } else {
+            ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        }
     }
 
     private fun requestPermissions() {
-        ActivityCompat.requestPermissions(
-            requireActivity(),
-            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-            permissionRequestCode
-        )
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == permissionRequestCode) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d("Permissions", "Permission granted")
-                searchDir(Environment.getExternalStorageDirectory())
-            } else {
-                Log.d("Permissions", "Permission denied")
-            }
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R){
+            val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+            manageExternalPermission.launch(intent)
+        }else{
+            writeExternalPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
     }
 }
